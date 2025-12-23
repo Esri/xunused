@@ -47,12 +47,12 @@ else()
         ${LLVM_BINARY_DIR}/tools/clang/include
     )
 
-    if (UNIX)
-        # When building as part of LLVM on Unix, LLVM and Clang are built with
+    if (UNIX AND NOT LLVM_ENABLE_RTTI)
+        # When building as part of LLVM on Unix, LLVM and Clang can be built with
         # -fno-rtti, so we need to disable RTTI for xunused as well.
         # https://github.com/mgehre/xunused/issues/1
         add_compile_options(-fno-rtti)
-    endif(UNIX)
+    endif()
 endif()
 
 message(STATUS
@@ -71,8 +71,6 @@ option(XUNUSED_LINK_CLANG_DYLIB
 
 message(STATUS "Link against the LLVM dynamic library: ${XUNUSED_LINK_LLVM_DYLIB}")
 message(STATUS "Link against the Clang dynamic library: ${XUNUSED_LINK_CLANG_DYLIB}")
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 include_directories(${xunused_include_dirs})
 
@@ -123,7 +121,7 @@ endif (XUNUSED_LINK_LLVM_DYLIB)
 
 target_link_libraries(xunused PRIVATE ${XUNUSED_CLANG_LIBS} ${XUNUSED_LLVM_LIBS})
 
-install(TARGETS xunused DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS xunused DESTINATION bin)
 
 # Add a check target to run lit tests
 # Find lit.py in the LLVM installation
